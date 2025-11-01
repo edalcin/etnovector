@@ -1,8 +1,10 @@
 # Data Model: Ethnobotany Vectorized Database
 
-**Feature**: 001-ethnobotany-vector-db
 **Created**: 2025-11-01
-**Reference**: [plan.md](./plan.md)
+**Documentation**:
+  - [Feature Specification](./spec.md)
+  - [Implementation Plan](./plan.md)
+  - [API Specification](./api-specification.md)
 
 ---
 

@@ -25,50 +25,42 @@ Key concept: Artifacts drive the implementation. Each stage generates human-read
 ## Project Structure
 
 ```
-H:\git\etnovector/
-├── .claude/                       # Claude Code configuration (root level)
+H:\git\etnovector/ (ROOT)
+├── .claude/                       # Claude Code configuration
 │   ├── commands/                  # 8 Claude Code slash commands (speckit.*)
-│   │   ├── speckit.specify.md     # Create feature specification
-│   │   ├── speckit.clarify.md     # Resolve ambiguities
-│   │   ├── speckit.plan.md        # Generate implementation plan
-│   │   ├── speckit.tasks.md       # Generate task breakdown
-│   │   ├── speckit.implement.md   # Execute implementation
-│   │   ├── speckit.analyze.md     # Cross-artifact validation
-│   │   ├── speckit.checklist.md   # Generate quality checklists
-│   │   └── speckit.constitution.md # View/update project governance
-│   └── settings.local.json        # CLI permissions
+│   │   ├── speckit.specify.md
+│   │   ├── speckit.clarify.md
+│   │   ├── speckit.plan.md
+│   │   ├── speckit.tasks.md
+│   │   ├── speckit.implement.md
+│   │   ├── speckit.analyze.md
+│   │   ├── speckit.checklist.md
+│   │   └── speckit.constitution.md
+│   └── settings.local.json
 │
-├── .specify/                      # Specify framework (root level)
-│   ├── memory/
-│   │   └── constitution.md        # Project principles and governance (to be filled in)
-│   ├── scripts/powershell/        # Automation scripts
-│   │   ├── create-new-feature.ps1      # Create feature branch + spec template
-│   │   ├── setup-plan.ps1              # Initialize plan template
-│   │   ├── check-prerequisites.ps1     # Validate feature readiness
-│   │   ├── update-agent-context.ps1    # Update AI knowledge base
-│   │   └── common.ps1                  # Shared utility functions
-│   └── templates/                 # Document templates
-│       ├── spec-template.md       # Feature specification
-│       ├── plan-template.md       # Implementation plan
-│       ├── tasks-template.md      # Task breakdown
-│       ├── checklist-template.md  # Quality checklist
-│       └── agent-file-template.md # AI context
+├── .specify/                      # Specify framework
+│   ├── memory/constitution.md
+│   ├── scripts/powershell/
+│   └── templates/
 │
-├── specs/                         # Feature specifications directory
-│   └── [###]-[feature-name]/      # Numbered feature directories
-│       ├── spec.md                # What to build (user stories, requirements)
-│       ├── plan.md                # How to build it (architecture, tech stack)
-│       ├── tasks.md               # Work breakdown (tasks by user story)
-│       ├── research*.md           # Research documents (embeddings, databases, LLM APIs)
-│       ├── data-model.md          # Entity definitions
-│       ├── contracts/             # API/contract specifications
-│       ├── quickstart.md          # Integration examples
-│       └── checklists/            # Quality gates
+├── research/                      # Technology research documents
+│   ├── research-embedding-models.md
+│   ├── research-databases.md
+│   └── research-llm-apis.md
+│
+├── spec.md                        # ✅ Feature specification (6 user stories, 18 requirements)
+├── plan.md                        # ✅ Implementation plan (11 weeks, 5 phases)
+├── data-model.md                  # ✅ PostgreSQL schema + CARE principles
+├── api-specification.md           # ✅ RESTful API endpoints (14+ endpoints)
+├── quality-checklist.md           # Quality validation checklist
 │
 ├── CLAUDE.md                      # This file - Claude Code guidance
-├── README.md                      # Project information
+├── README.md                      # Project information (PT-BR)
+├── LICENSE                        # MIT License
 └── .git/                          # Git repository
 ```
+
+**Everything references the main branch directly - no separate feature folders.**
 
 ## Development Commands
 

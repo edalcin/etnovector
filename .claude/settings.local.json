@@ -12,7 +12,11 @@
       "Bash(git commit -m \"$(cat <<''EOF''\nAdd comprehensive technology research documents\n\n- research-embedding-models.md: Compare SPECTER2, SciBERT, and Sentence-Transformers for scientific article embeddings; recommend SPECTER2\n- research-databases.md: Evaluate vector and SQL databases; recommend PostgreSQL+pgvector for MVP, PostgreSQL+Qdrant for production\n- research-llm-apis.md: Compare Claude, Gemini, ChatGPT APIs; recommend multi-provider support with user-provided API keys\n\nAll documents include cost analysis, performance benchmarks, and implementation recommendations.\n\n🤖 Generated with Claude Code\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
       "Bash(git merge 001-ethnobotany-vector-db -m \"$(cat <<''EOF''\nMerge ethnobotany vector database feature from branch into main\n\nMerge specs/001-ethnobotany-vector-db/ with complete specification, research documents, and checklists into main branch.\n\nIncludes:\n- Feature specification (6 user stories, 18 requirements, 12 success criteria)\n- Research documents: embedding models, databases, LLM APIs\n- Quality checklists for specification review\n\nAll work from 001-ethnobotany-vector-db branch now in main.\n\n🤖 Generated with Claude Code\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
       "Bash(git branch:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(git rm:*)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nReorganize project structure: move framework to root\n\n- Move .claude/commands/ to repository root\n- Move .specify/ framework (scripts, templates, memory) to repository root\n- Remove unnecessary etnovector/ subdirectory\n- All framework files now at root level alongside specs/\n\nThis simplifies the directory structure: files are now at H:\\git\\etnovector\\\ninstead of H:\\git\\etnovector\\etnovector\\\n\n🤖 Generated with Claude Code\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(powershell -Command \"Get-ChildItem -Path ''''H:\\git\\etnovector'''' -Recurse | Select-Object -ExpandProperty FullName | Where-Object {$_otmatch ''''\\.git''''} | Sort-Object\")",
+      "Bash(git commit:*)"
     ],
     "deny": [],
     "ask": []

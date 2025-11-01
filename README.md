@@ -229,10 +229,13 @@ npm start
 
 ### Para Desenvolvedores
 
-- [Especificação de Funcionalidades](./specs/001-ethnobotany-vector-db/spec.md)
-- [Plano de Implementação](./specs/001-ethnobotany-vector-db/plan.md)
-- [Modelo de Dados](./specs/001-ethnobotany-vector-db/data-model.md)
-- [API Specification](./specs/001-ethnobotany-vector-db/contracts/api-specification.md)
+- [Especificação de Funcionalidades](./spec.md)
+- [Plano de Implementação](./plan.md)
+- [Modelo de Dados](./data-model.md)
+- [API Specification](./api-specification.md)
+- [Pesquisa: Embedding Models](./research/research-embedding-models.md)
+- [Pesquisa: Databases](./research/research-databases.md)
+- [Pesquisa: LLM APIs](./research/research-llm-apis.md)
 - [Guia de Contribuição](./CONTRIBUTING.md)
 - [CLAUDE.md](./CLAUDE.md) - Guia para Claude Code
 

@@ -1,9 +1,12 @@
 # Implementation Plan: Ethnobotany Vectorized Database
 
-**Feature**: 001-ethnobotany-vector-db
 **Created**: 2025-11-01
 **Status**: Ready for Implementation
-**Specification**: [spec.md](./spec.md)
+**Documentation**:
+  - [Feature Specification](./spec.md)
+  - [Data Model](./data-model.md)
+  - [API Specification](./api-specification.md)
+  - Research: [Embeddings](./research/research-embedding-models.md) • [Databases](./research/research-databases.md) • [LLM APIs](./research/research-llm-apis.md)
 
 ---
 

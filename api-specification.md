@@ -1,8 +1,12 @@
 # API Specification: Ethnobotany Vectorized Database
 
-**Feature**: 001-ethnobotany-vector-db
 **Created**: 2025-11-01
-**Base URL**: `https://api.ethnobotany.local/v1`
+**Status**: Specification Complete ✅
+**Base URL**: `https://api.ethnobotany.local/v1` (MVP) / Production TBD
+**Related**:
+  - [Feature Specification](./spec.md)
+  - [Data Model](./data-model.md)
+  - [Implementation Plan](./plan.md)
 
 ---
 

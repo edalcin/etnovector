@@ -1,9 +1,13 @@
 # Feature Specification: Ethnobotany Scientific Articles Vectorized Database
 
-**Feature Branch**: `001-ethnobotany-vector-db`
 **Created**: 2025-11-01
-**Status**: Draft
-**Input**: User description: Vectorized database of scientific articles on ethnobotany (traditional plant use in Brazilian communities)
+**Status**: Complete ✅
+**Repository**: Main branch (no feature branches)
+**Related Documents**:
+  - [Implementation Plan](./plan.md)
+  - [Data Model](./data-model.md)
+  - [API Specification](./api-specification.md)
+  - Research: [Embeddings](./research/research-embedding-models.md) • [Databases](./research/research-databases.md) • [LLM APIs](./research/research-llm-apis.md)
 
 ## User Scenarios & Testing
 
