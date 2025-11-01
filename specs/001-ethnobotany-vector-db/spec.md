@@ -7,20 +7,22 @@
 
 ## User Scenarios & Testing
 
-### User Story 1 - Upload and Index Scientific Articles (Priority: P1)
+### User Story 1 - Ingest and Index Scientific Articles (Priority: P1)
 
-As a **researcher or librarian**, I want to upload PDF scientific articles and have them automatically indexed so that our ethnobotany knowledge base grows and becomes searchable.
+As a **researcher or librarian**, I want to submit scientific articles for cataloging via PDF upload or article URL so that our ethnobotany knowledge base grows and becomes searchable without requiring the system to retain article files.
 
-**Why this priority**: This is the foundation of the entire system. Without indexed articles, no search or analysis features can function. This is the core MVP - a functional knowledge base.
+**Why this priority**: This is the foundation of the entire system. Without indexed articles, no search or analysis features can function. This is the core MVP - a functional knowledge base. Supporting both upload (for existing PDFs) and URL (for persistent access) maximizes accessibility.
 
-**Independent Test**: Can be fully tested by uploading a PDF article, verifying metadata extraction, SQL storage, and vector embedding creation. Delivers immediate value: a single searchable article in the system.
+**Independent Test**: Can be fully tested by ingesting an article via either upload or URL, verifying metadata extraction, SQL storage, and vector embedding creation. Delivers immediate value: a single searchable article in the system.
 
 **Acceptance Scenarios**:
 
-1. **Given** a valid PDF file with scientific article content, **When** user uploads it via the web interface, **Then** the system extracts metadata (title, authors, year, abstract, DOI) and stores it in SQL database, and creates vector embeddings for semantic search
-2. **Given** duplicate article detection is enabled, **When** user uploads an article already in the system, **Then** the system prevents duplication and alerts the user
-3. **Given** a malformed or non-readable PDF, **When** user attempts to upload it, **Then** the system displays clear error message and suggests remediation
-4. **Given** large PDF files (up to 50MB), **When** user uploads them, **Then** the system processes them asynchronously without blocking the interface
+1. **Given** a valid PDF file with scientific article content, **When** user uploads it via the web interface, **Then** the system extracts metadata (title, authors, year, abstract, DOI), stores metadata + embeddings in database (without retaining PDF), and creates vector embeddings for semantic search
+2. **Given** an article URL (journal link, DOI, arXiv, ResearchGate), **When** user submits the URL, **Then** the system fetches metadata from the source (via APIs or web scraping), extracts content, stores metadata + embeddings, and links to original source without storing the full PDF
+3. **Given** duplicate article detection is enabled, **When** user submits an article already in the system (by DOI or title match), **Then** the system prevents duplication and alerts the user
+4. **Given** a malformed or non-readable PDF, **When** user attempts to upload it, **Then** the system displays clear error message and suggests remediation (or manual metadata entry)
+5. **Given** a URL that cannot be accessed or lacks required metadata, **When** user submits it, **Then** the system allows manual metadata entry with article URL reference
+6. **Given** large PDF files (up to 50MB), **When** user uploads them, **Then** the system processes them asynchronously without blocking the interface
 
 ---
 
@@ -118,11 +120,12 @@ As a **system administrator**, I want the system to periodically monitor scienti
 
 ### Functional Requirements
 
-- **FR-001**: System MUST allow authenticated users to upload PDF scientific articles via web interface
-- **FR-002**: System MUST automatically extract metadata from PDF articles (title, authors, year, publication venue, abstract, DOI)
-- **FR-003**: System MUST store article metadata in SQL database with full-text search capability
-- **FR-004**: System MUST create semantic embeddings for article content using open-source, scientific-article-optimized embedding model
-- **FR-005**: System MUST store embeddings in vector database with efficient similarity search
+- **FR-001**: System MUST allow authenticated users to submit scientific articles via: (a) PDF file upload, or (b) article URL (journal link, DOI, arXiv, ResearchGate)
+- **FR-002**: System MUST automatically extract or fetch metadata for articles (title, authors, year, publication venue, abstract, DOI)
+- **FR-003**: System MUST support metadata extraction from: (a) PDF files via text extraction, (b) URL via APIs (CrossRef, arXiv, PubMed), or (c) manual entry
+- **FR-004**: System MUST store article metadata in SQL database with full-text search capability, linking to original sources via URL/DOI without retaining full-text PDF copies
+- **FR-005**: System MUST create semantic embeddings for article content using open-source, scientific-article-optimized embedding model (SPECTER2)
+- **FR-005a**: System MUST support embedding generation from either extracted PDF text or fetched metadata+abstract from URL sources
 - **FR-006**: System MUST provide chat-based semantic search interface for natural language queries
 - **FR-007**: System MUST support integration with multiple LLM APIs (Claude, Gemini, ChatGPT) with user-managed API keys
 - **FR-008**: System MUST generate article recommendations based on semantic similarity
@@ -155,7 +158,8 @@ As a **system administrator**, I want the system to periodically monitor scienti
 - **SC-002**: Semantic search returns relevant articles with 85%+ precision (assessed by researcher validation) for natural language queries
 - **SC-003**: Recommendation engine identifies related articles not obvious from keyword matching, with 70%+ user satisfaction for relevance
 - **SC-004**: Trend analysis correctly identifies research gaps (regions/plants with <5 studies) with 95% accuracy
-- **SC-005**: Article upload process (PDF to indexed) completes in under 5 minutes for typical scientific papers (10-50 pages)
+- **SC-005**: Article ingestion completes in under 5 minutes for: (a) PDF upload/indexing (10-50 pages), or (b) URL submission with metadata fetch
+- **SC-005a**: URL-based submission (metadata fetch + embedding) completes in under 2 minutes for articles with available API metadata
 - **SC-006**: API monitoring discovers 90%+ of new ethnobotany publications within 7 days of publication
 - **SC-007**: System maintains 99.5% uptime in production deployment
 - **SC-008**: CARE compliance audit shows 100% attribution of traditional knowledge with documented community approvals
@@ -163,6 +167,7 @@ As a **system administrator**, I want the system to periodically monitor scienti
 - **SC-010**: Embedding model produces semantically meaningful results for scientific terminology and plant property descriptions
 - **SC-011**: System deployment via Docker completes in under 30 minutes with standard configuration
 - **SC-012**: Database supports concurrent access by 50+ researchers without performance degradation
+- **SC-013**: Metadata extraction succeeds for 95%+ of PDFs and 90%+ of URL submissions without manual correction
 
 ## Assumptions
 
