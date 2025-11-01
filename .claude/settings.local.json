@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(tree:*)",
+      "Bash(dir:*)",
+      "Bash(powershell -Command \"Get-ChildItem -Path ''H:\\git\\etnovector'' -Recurse | Select-Object -Property FullName | Sort-Object -Property FullName | Format-Table -AutoSize\")",
+      "Bash(git fetch:*)",
+      "Bash(git checkout:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nCreate specification for Ethnobotany Vectorized Database system\n\n- 6 prioritized user stories (P1-P3) covering article upload, semantic search, recommendations, trend analysis, CARE principles, and publication monitoring\n- 18 functional requirements with clear acceptance criteria\n- 12 measurable success criteria with specific targets\n- Data retention strategy: link to original sources via DOI/URLs, store embeddings and metadata\n- Complete assumptions, constraints, and edge cases documentation\n\n🤖 Generated with Claude Code\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "WebSearch",
+      "Bash(git commit -m \"$(cat <<''EOF''\nAdd comprehensive technology research documents\n\n- research-embedding-models.md: Compare SPECTER2, SciBERT, and Sentence-Transformers for scientific article embeddings; recommend SPECTER2\n- research-databases.md: Evaluate vector and SQL databases; recommend PostgreSQL+pgvector for MVP, PostgreSQL+Qdrant for production\n- research-llm-apis.md: Compare Claude, Gemini, ChatGPT APIs; recommend multi-provider support with user-provided API keys\n\nAll documents include cost analysis, performance benchmarks, and implementation recommendations.\n\n🤖 Generated with Claude Code\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(git merge 001-ethnobotany-vector-db -m \"$(cat <<''EOF''\nMerge ethnobotany vector database feature from branch into main\n\nMerge specs/001-ethnobotany-vector-db/ with complete specification, research documents, and checklists into main branch.\n\nIncludes:\n- Feature specification (6 user stories, 18 requirements, 12 success criteria)\n- Research documents: embedding models, databases, LLM APIs\n- Quality checklists for specification review\n\nAll work from 001-ethnobotany-vector-db branch now in main.\n\n🤖 Generated with Claude Code\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(git branch:*)",
+      "Bash(git push:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
