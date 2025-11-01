@@ -25,11 +25,22 @@ Key concept: Artifacts drive the implementation. Each stage generates human-read
 ## Project Structure
 
 ```
-etnovector/
-├── .claude/commands/              # 8 Claude Code slash commands (speckit.*)
-│   ├── specify, clarify, constitution, plan, tasks, analyze, checklist, implement
-├── .specify/                      # Framework core
-│   ├── memory/constitution.md     # Project principles and governance (to be filled in)
+H:\git\etnovector/
+├── .claude/                       # Claude Code configuration (root level)
+│   ├── commands/                  # 8 Claude Code slash commands (speckit.*)
+│   │   ├── speckit.specify.md     # Create feature specification
+│   │   ├── speckit.clarify.md     # Resolve ambiguities
+│   │   ├── speckit.plan.md        # Generate implementation plan
+│   │   ├── speckit.tasks.md       # Generate task breakdown
+│   │   ├── speckit.implement.md   # Execute implementation
+│   │   ├── speckit.analyze.md     # Cross-artifact validation
+│   │   ├── speckit.checklist.md   # Generate quality checklists
+│   │   └── speckit.constitution.md # View/update project governance
+│   └── settings.local.json        # CLI permissions
+│
+├── .specify/                      # Specify framework (root level)
+│   ├── memory/
+│   │   └── constitution.md        # Project principles and governance (to be filled in)
 │   ├── scripts/powershell/        # Automation scripts
 │   │   ├── create-new-feature.ps1      # Create feature branch + spec template
 │   │   ├── setup-plan.ps1              # Initialize plan template
@@ -42,16 +53,21 @@ etnovector/
 │       ├── tasks-template.md      # Task breakdown
 │       ├── checklist-template.md  # Quality checklist
 │       └── agent-file-template.md # AI context
-└── specs/                         # Feature specifications directory (created per feature)
-    └── [###]-[feature-name]/      # Numbered feature directories
-        ├── spec.md                # What to build (user stories, requirements)
-        ├── plan.md                # How to build it (architecture, tech stack)
-        ├── tasks.md               # Work breakdown (tasks by user story)
-        ├── research.md            # Design research and decisions
-        ├── data-model.md          # Entity definitions
-        ├── contracts/             # API/contract specifications
-        ├── quickstart.md          # Integration examples
-        └── checklists/            # Quality gates
+│
+├── specs/                         # Feature specifications directory
+│   └── [###]-[feature-name]/      # Numbered feature directories
+│       ├── spec.md                # What to build (user stories, requirements)
+│       ├── plan.md                # How to build it (architecture, tech stack)
+│       ├── tasks.md               # Work breakdown (tasks by user story)
+│       ├── research*.md           # Research documents (embeddings, databases, LLM APIs)
+│       ├── data-model.md          # Entity definitions
+│       ├── contracts/             # API/contract specifications
+│       ├── quickstart.md          # Integration examples
+│       └── checklists/            # Quality gates
+│
+├── CLAUDE.md                      # This file - Claude Code guidance
+├── README.md                      # Project information
+└── .git/                          # Git repository
 ```
 
 ## Development Commands
