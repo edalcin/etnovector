@@ -16,7 +16,8 @@
       "Bash(git rm:*)",
       "Bash(git commit -m \"$(cat <<''EOF''\nReorganize project structure: move framework to root\n\n- Move .claude/commands/ to repository root\n- Move .specify/ framework (scripts, templates, memory) to repository root\n- Remove unnecessary etnovector/ subdirectory\n- All framework files now at root level alongside specs/\n\nThis simplifies the directory structure: files are now at H:\\git\\etnovector\\\ninstead of H:\\git\\etnovector\\etnovector\\\n\n🤖 Generated with Claude Code\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
       "Bash(powershell -Command \"Get-ChildItem -Path ''''H:\\git\\etnovector'''' -Recurse | Select-Object -ExpandProperty FullName | Where-Object {$_otmatch ''''\\.git''''} | Sort-Object\")",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "WebFetch(domain:github.com)"
     ],
     "deny": [],
     "ask": []
