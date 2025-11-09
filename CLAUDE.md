@@ -4,11 +4,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**etnovector** is a specification and implementation management framework designed to bridge natural language requirements with executable code. It implements a multi-stage workflow that converts feature descriptions into formal specifications, technical plans, and structured tasks.
+**etnovector** is an ethnobotany scientific article vectorized database with semantic search and RAG-powered chat interface. The system implements Retrieval-Augmented Generation (RAG) for intelligent discovery of traditional plant knowledge from scientific literature, with CARE principles for Indigenous knowledge governance.
 
-**Project type**: Specification-to-Implementation Automation Framework (PowerShell-based)
-**Tech stack**: PowerShell 7+, Markdown, Git, Claude AI API
-**Primary language**: PowerShell (cross-platform scripts)
+**Project type**: RAG System for Ethnobotany Research (Python-based)
+**Tech stack**: FastAPI, PostgreSQL+pgvector, PydanticAI, Docling, OpenAI Embeddings, Docker
+**Primary language**: Python 3.11+ (backend), TypeScript/React (frontend planned)
+
+**Reference Architecture**: [docling-rag-agent](https://github.com/coleam00/ottomator-agents/tree/main/docling-rag-agent) - Production-proven RAG system with multi-format document ingestion
+
+**Specification Management**: PowerShell-based workflow automation (speckit framework) for converting natural language requirements into executable code through formal specifications, technical plans, and structured tasks
 
 ## Core Workflow
 
@@ -190,6 +194,223 @@ Benefits:
 - Branch name matches spec directory (`001-user-auth` branch → `specs/001-user-auth/` directory)
 - Enables parallel feature development with clear progress
 - Stable feature numbering even if names change
+
+### Pattern 7: RAG System Architecture (docling-rag-agent Reference)
+
+**This project's technical implementation is based on [docling-rag-agent](https://github.com/coleam00/ottomator-agents/tree/main/docling-rag-agent)**
+
+Core architecture patterns from reference implementation:
+
+#### 1. **Multi-Format Document Ingestion Pipeline**
+```python
+# Docling-based processing
+Document (PDF/DOCX/PPTX/XLSX/HTML/MD/TXT)
+  ↓ Docling format detection
+  ↓ Convert to normalized Markdown
+  ↓ Semantic chunking (1000 tokens default)
+  ↓ OpenAI text-embedding-3-small (1536d)
+  ↓ Store in PostgreSQL (chunks table + embeddings)
+```
+
+**Key technologies**:
+- **Docling**: Multi-format document conversion to Markdown
+- **OpenAI embeddings**: text-embedding-3-small (1536 dimensions, ~$0.02/1M tokens)
+- **Chunking**: Configurable token limits for long documents
+
+#### 2. **PostgreSQL + pgvector Unified Storage**
+```sql
+-- Single database for both metadata and vectors
+CREATE TABLE documents (
+  document_id UUID PRIMARY KEY,
+  title TEXT,
+  authors TEXT[],
+  doi TEXT,
+  source_url TEXT,
+  -- ... ethnobotany-specific fields
+);
+
+CREATE TABLE chunks (
+  chunk_id UUID PRIMARY KEY,
+  document_id UUID REFERENCES documents,
+  chunk_text TEXT,
+  chunk_embedding vector(1536),  -- pgvector type
+  chunk_index INTEGER,
+  token_count INTEGER
+);
+
+-- Custom function for cosine similarity search
+CREATE FUNCTION match_chunks(
+  query_embedding vector(1536),
+  match_limit INT,
+  similarity_threshold FLOAT DEFAULT 0.7
+)
+RETURNS TABLE (chunk_id UUID, similarity FLOAT, chunk_text TEXT)
+LANGUAGE sql
+AS $$
+  SELECT chunk_id,
+         1 - (chunk_embedding <=> query_embedding) AS similarity,
+         chunk_text
+  FROM chunks
+  WHERE 1 - (chunk_embedding <=> query_embedding) > similarity_threshold
+  ORDER BY chunk_embedding <=> query_embedding
+  LIMIT match_limit;
+$$;
+```
+
+**Key patterns**:
+- **Single database**: No separate vector DB, simplified architecture
+- **`<=>` operator**: pgvector cosine distance for similarity search
+- **Connection pooling**: asyncpg with 2-10 async connections
+- **Threshold filtering**: Default 0.7 similarity threshold
+
+#### 3. **PydanticAI Agent Framework with Tool-Calling**
+```python
+from pydantic_ai import Agent
+
+# Define RAG agent with search tool
+agent = Agent(
+    model='openai:gpt-4o-mini',
+    tools=[search_knowledge_base],  # Tool-calling architecture
+    system_prompt="You are an ethnobotany research assistant..."
+)
+
+@agent.tool
+async def search_knowledge_base(
+    query: str,
+    limit: int = 5
+) -> list[dict]:
+    """
+    Search the vector database for relevant article chunks.
+
+    Args:
+        query: Natural language search query
+        limit: Number of results to return
+
+    Returns:
+        List of chunks with content, similarity scores, source metadata
+    """
+    # 1. Generate query embedding
+    embedding = await get_embedding(query)
+
+    # 2. Query PostgreSQL with pgvector
+    results = await conn.fetch(
+        "SELECT * FROM match_chunks($1, $2)",
+        embedding, limit
+    )
+
+    # 3. Return structured results with citations
+    return [
+        {
+            "content": r["chunk_text"],
+            "similarity": r["similarity"],
+            "source": r["title"],
+            "file_path": r["source_url"]
+        }
+        for r in results
+    ]
+```
+
+**Key patterns**:
+- **Tool-calling**: LLM decides when to call `search_knowledge_base`
+- **Streaming responses**: Token-by-token with `agent.run_stream()`
+- **Multi-turn context**: Conversation history maintained across turns
+- **Multi-provider**: Supports OpenAI, Anthropic (Claude), Google (Gemini) via provider abstraction
+
+#### 4. **Async-First FastAPI Backend**
+```python
+# asyncpg connection pooling
+pool = await asyncpg.create_pool(
+    database_url,
+    min_size=2,
+    max_size=10
+)
+
+# Async document processing
+@app.post("/documents/upload")
+async def upload_document(file: UploadFile):
+    # 1. Async file processing
+    content = await process_with_docling(file)
+
+    # 2. Async chunking
+    chunks = await semantic_chunk(content, chunk_size=1000)
+
+    # 3. Async embedding generation (batched)
+    embeddings = await get_embeddings_batch(chunks)
+
+    # 4. Async database insertion
+    async with pool.acquire() as conn:
+        await conn.executemany(
+            "INSERT INTO chunks VALUES ($1, $2, $3)",
+            [(chunk, embedding) for chunk, embedding in zip(chunks, embeddings)]
+        )
+```
+
+**Key patterns**:
+- **Connection pooling**: Efficient database resource management
+- **Batch operations**: Process multiple chunks/embeddings together
+- **Error handling**: User-friendly error messages for common failures
+- **Progress tracking**: Async processing with status updates
+
+#### 5. **Docker Containerization**
+```yaml
+# docker-compose.yml pattern
+services:
+  postgres:
+    image: pgvector/pgvector:pg15
+    environment:
+      POSTGRES_DB: etnovector
+      POSTGRES_USER: postgres
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./sql/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  backend:
+    build: ./backend
+    depends_on:
+      - postgres
+    environment:
+      DATABASE_URL: postgresql://postgres@postgres:5432/etnovector
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+    ports:
+      - "8000:8000"
+```
+
+**Key patterns**:
+- **pgvector container**: PostgreSQL with vector extension pre-installed
+- **Database initialization**: SQL scripts auto-run on first startup
+- **Environment variables**: API keys and config externalized
+- **Volume persistence**: Database data survives container restarts
+
+#### **Extensions Beyond docling-rag-agent**
+
+This project adds ethnobotany-specific features:
+
+1. **CARE Principles Implementation**
+   - Community approval workflows (CommunityApproval table)
+   - Traditional knowledge flagging and attribution
+   - Audit logging (AuditLog table)
+   - Benefit-sharing tracking
+
+2. **Ethnobotany Metadata**
+   - Custom fields: plants, regions, medicinal properties
+   - Traditional vs. scientific nomenclature mapping
+   - Community-specific annotations
+
+3. **Research Analytics**
+   - Trend analysis dashboard (plant frequency, regional patterns)
+   - Research gap identification (threshold: <5 studies)
+   - Temporal trend tracking
+
+4. **Publication Monitoring**
+   - Journal API integration (PubMed, CrossRef, arXiv)
+   - Automated ingestion scheduling
+   - Duplicate detection via DOI + content similarity
+
+**When implementing features**:
+- **Start with docling-rag-agent patterns** as baseline
+- **Adapt for ethnobotany domain** with custom metadata
+- **Add CARE governance** as overlay on top of base RAG system
+- **Reference implementation code** when unclear: https://github.com/coleam00/ottomator-agents/tree/main/docling-rag-agent
 
 ## Configuration
 

@@ -1,10 +1,16 @@
 # Data Model: Ethnobotany Vectorized Database
 
 **Created**: 2025-11-01
+**Updated**: 2025-11-09 (Aligned with docling-rag-agent schema)
+**Reference Architecture**: [docling-rag-agent](https://github.com/coleam00/ottomator-agents/tree/main/docling-rag-agent) - PostgreSQL + pgvector schema
+
 **Documentation**:
   - [Feature Specification](./spec.md)
+  - [Updated Specification](./specs/001-docling-rag-update/spec.md)
   - [Implementation Plan](./plan.md)
   - [API Specification](./api-specification.md)
+
+**Schema Reference**: Based on docling-rag-agent `documents` and `chunks` tables with ethnobotany-specific extensions
 
 ---
 

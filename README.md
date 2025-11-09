@@ -4,6 +4,8 @@ Base de dados semântica de artigos científicos sobre etnobotânica (uso tradic
 
 **Status**: Em Planejamento • **Versão**: 0.1.0 (MVP em Desenvolvimento)
 
+**Arquitetura de Referência**: [docling-rag-agent](https://github.com/coleam00/ottomator-agents/tree/main/docling-rag-agent) - Sistema RAG com ingestão multi-formato e chat conversacional
+
 ---
 
 ## 📚 O Projeto
@@ -37,30 +39,40 @@ Diferentemente de ferramentas de busca tradicionais (como Google Scholar), EtnoV
 
 ## 🎯 Capacidades Principais
 
-### 1. Ingestão de Artigos (PDF + URL)
+### 1. Ingestão Multi-Formato de Documentos (Docling)
 
-- **Upload de PDF**: Envie artigos científicos em PDF
+- **Formatos Suportados**: PDF, Word (DOCX), PowerPoint (PPTX), Excel (XLSX), HTML, Markdown, TXT
+- **Processamento Automático**: Detecção automática de formato e conversão via [Docling](https://github.com/DS4SD/docling)
+- **Upload de Arquivo**: Envie documentos via drag-and-drop ou seleção
 - **Submissão por URL**: Envie links para artigos (DOI, links de journals, arXiv, ResearchGate)
 - **Extração Automática de Metadados**: Sistema extrai automaticamente título, autores, ano, resumo
-- **Sem Retenção de PDF**: Metadados + embeddings armazenados, links para artigo original mantidos
-- **Detecção de Duplicatas**: Previne artigos duplicados por DOI ou similaridade de título
+- **Chunking Semântico**: Documentos longos são divididos em segmentos de 1000 tokens para processamento eficiente
+- **Sem Retenção de Documentos**: Apenas metadados + embeddings armazenados, links para fonte original mantidos
+- **Detecção de Duplicatas**: Previne duplicados por DOI ou similaridade de conteúdo
 
-### 2. Busca Semântica Inteligente (Chat)
+**Referência Técnica**: Baseado no pipeline de ingestão do [docling-rag-agent](https://github.com/coleam00/ottomator-agents/tree/main/docling-rag-agent) com conversão para Markdown normalizado
+
+### 2. Interface de Chat RAG com Tool-Calling (PydanticAI)
 
 ```
 Usuário: "Quais plantas usadas por comunidades amazônicas têm propriedades anti-parasitárias validadas cientificamente?"
 
-EtnoVector:
-1. Busca pela similaridade semântica do significado
-2. Retorna artigos relevantes mesmo com terminologia diferente
-3. Opcionalmente: LLM sintetiza os achados em resposta conversacional
+EtnoVector (via PydanticAI Agent):
+1. LLM analisa a pergunta e decide chamar a ferramenta search_knowledge_base
+2. Busca vetorial retorna top-k chunks relevantes (similaridade > 0.7)
+3. LLM sintetiza resposta com citações inline dos artigos encontrados
+4. Retorna resposta conversacional com fontes verificáveis
 ```
 
 **Características**:
-- Busca em português e inglês
-- Integração com Claude, Gemini ou ChatGPT (escolha do usuário)
-- Mantém contexto de conversa para refinamento iterativo
-- Mostra quais artigos foram usados para a resposta
+- **Arquitetura de Agentes**: Framework [PydanticAI](https://ai.pydantic.dev/) com tool-calling para orquestração
+- **Multi-Provider LLM**: Suporte para Claude, Gemini e ChatGPT (chaves de API fornecidas pelo usuário)
+- **Streaming de Respostas**: Feedback token-por-token em tempo real
+- **Contexto Multi-Turno**: Mantém histórico de conversa para refinamento iterativo
+- **Citações com Scores**: Mostra artigos usados com scores de similaridade
+- **Busca Bilíngue**: Funciona em português e inglês
+
+**Referência Técnica**: Arquitetura baseada no agente RAG do [docling-rag-agent](https://github.com/coleam00/ottomator-agents/tree/main/docling-rag-agent) com `search_knowledge_base` como tool callable
 
 ### 3. Sistema de Recomendações
 
@@ -107,50 +119,83 @@ Sistema automático que:
 
 ## 🏗️ Arquitetura Técnica
 
+**Baseado em**: [docling-rag-agent](https://github.com/coleam00/ottomator-agents/tree/main/docling-rag-agent) - Arquitetura de referência comprovada para RAG com multi-formato
+
 ### Componentes do Sistema
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                  Interface Web (React)                          │
-│           Upload de PDFs • Busca Semântica • Chat               │
+│    Upload Multi-Formato • Chat RAG • Recomendações • CARE      │
 │              Dashboard de Tendências • Gerenciamento            │
 └──────────────────────────┬──────────────────────────────────────┘
-                           │ REST/WebSocket
+                           │ REST API + WebSocket
                            │
 ┌──────────────────────────▼──────────────────────────────────────┐
 │           Backend API (FastAPI/Python)                          │
 │  ┌──────────────┬──────────────┬──────────────────────────────┐ │
-│  │ Ingestão de  │   Busca &    │   Recomendações &           │ │
-│  │ Artigos      │ Interface Chat  Análise de Tendências      │ │
-│  │ - Extrator PDF                                            │ │
-│  │ - Busca URLs    ┌──────────────────────────┐             │ │
-│  │ - Metadados     │  SPECTER2 (Embeddings)   │             │ │
-│  └────────┬────────┤ Modelo de IA p/ semântica│─────┬───────┘ │
-│           │        └──────────────────────────┘     │         │
-└───────────┼────────────────────────────────────────┬┼─────────┘
-            │                                        ││
-    ┌───────▼────────────┐              ┌────────────▼▼──────────┐
-    │  PostgreSQL 15+    │              │  PostgreSQL pgvector   │
-    │  (Metadados)       │              │  (Embeddings de 768dim)│
-    │ - Título, autores  │              │                        │
-    │ - Resumo, palavras │              │ Busca semântica <50ms  │
-    │ - Comunidades      │              │ para 50k artigos       │
-    │ - Aprovações CARE  │              │                        │
-    └────────────────────┘              └────────────────────────┘
+│  │ Ingestão     │  PydanticAI  │   Recomendações &           │ │
+│  │ Multi-Formato│  RAG Agent   │   Análise de Tendências      │ │
+│  │              │              │                               │ │
+│  │  Docling     │  Tool-Calling│   Similaridade Vetorial      │ │
+│  │  Pipeline    │  search_kb() │   Gap Analysis               │ │
+│  │  ↓           │  ↓           │   ↓                          │ │
+│  │  Markdown    │  PostgreSQL  │   Dashboard                  │ │
+│  │  Chunking    │  + pgvector  │   Visualizações              │ │
+│  │  Embeddings  │  Streaming   │                              │ │
+│  └──────┬───────┴──────┬───────┴──────────────────────────────┘ │
+│         │              │                                         │
+│    ┌────▼──────────────▼────────────────┐                      │
+│    │ OpenAI text-embedding-3-small     │                      │
+│    │ 1536 dimensions • ~$0.02/1M tokens│                      │
+│    └───────────────────────────────────┘                      │
+└───────────┬────────────────────────────────────────────────────┘
+            │
+    ┌───────▼────────────────────────────────────────┐
+    │  PostgreSQL 15+ com pgvector Extension         │
+    │                                                 │
+    │  Tabela: documents                              │
+    │  - Metadados (título, autores, DOI, URL)       │
+    │  - Status de processamento                      │
+    │  - Community approvals (CARE)                   │
+    │                                                 │
+    │  Tabela: chunks                                 │
+    │  - Texto do segmento                            │
+    │  - Embedding vetorial [1536d]                   │
+    │  - Referência ao documento original             │
+    │                                                 │
+    │  Função: match_chunks(query_embedding, limit)   │
+    │  - Busca por cosine similarity (<=> operator)   │
+    │  - Retorna top-k chunks mais relevantes         │
+    │  - Filtragem por threshold (0.7 default)        │
+    │                                                 │
+    │  Connection Pooling: 2-10 async connections     │
+    └─────────────────────────────────────────────────┘
 ```
 
 ### Stack Tecnológico
 
-| Componente | Tecnologia | Por quê? |
-|-----------|-----------|---------|
-| **Embeddings** | SPECTER2 (Hugging Face) | Otimizado para artigos científicos, task-adaptive |
-| **Banco de Dados SQL** | PostgreSQL 15+ | ACID, full-text search, pgvector para vetores |
-| **Banco Vetorial** | pgvector (MVP) / Qdrant (Produção) | Eficiente, open-source, custo-benefício |
-| **Backend API** | FastAPI (Python) | Async-first, moderno, excelente documentação |
-| **Frontend** | React 18 + TypeScript | Tipo-seguro, componentes reutilizáveis |
-| **LLM Integration** | LiteLLM + Claude/Gemini/ChatGPT | Multi-provider, switch automático de APIs |
-| **Container** | Docker + Docker Compose | Reproduzível, fácil desenvolvimento |
-| **PDF Processing** | PyPDF2, pdfplumber | Extração de texto e metadados |
+**Baseado na arquitetura comprovada do [docling-rag-agent](https://github.com/coleam00/ottomator-agents/tree/main/docling-rag-agent)**
+
+| Componente | Tecnologia | Por quê? | Referência |
+|-----------|-----------|---------|------------|
+| **Document Processing** | [Docling](https://github.com/DS4SD/docling) | Conversão multi-formato (PDF, DOCX, PPTX, XLSX, HTML, MD) para Markdown normalizado | docling-rag-agent |
+| **Embeddings** | OpenAI text-embedding-3-small (1536d) | Alta qualidade, custo-efetivo (~$0.02/1M tokens), usado em produção | docling-rag-agent |
+| **Banco de Dados** | PostgreSQL 15+ com pgvector | Single database para metadados + vetores, ACID, cosine similarity via `<=>` operator | docling-rag-agent |
+| **Vector Search** | pgvector extension | Busca eficiente com cosine distance, function `match_chunks()`, threshold filtering | docling-rag-agent |
+| **Agent Framework** | [PydanticAI](https://ai.pydantic.dev/) | Tool-calling architecture, streaming responses, type-safe, multi-provider LLM | docling-rag-agent |
+| **LLM Providers** | OpenAI GPT-4o-mini (default) + Claude + Gemini | Multi-provider com user-provided API keys, provider abstraction layer | docling-rag-agent |
+| **Backend API** | FastAPI (Python) + asyncpg | Async-first, connection pooling (2-10 connections), high performance | docling-rag-agent |
+| **Database Client** | asyncpg | Async PostgreSQL driver, efficient connection pooling | docling-rag-agent |
+| **Container** | Docker + Docker Compose | Reproduzível, PostgreSQL + pgvector container + app container | docling-rag-agent |
+| **Package Manager** | UV | Fast Python package management (opcional, pode usar pip) | docling-rag-agent |
+| **Frontend** | React 18 + TypeScript | Tipo-seguro, componentes reutilizáveis, chat interface com streaming | Planejado |
+
+**Extensões ao docling-rag-agent**:
+- **Etnobotânica Features**: Metadados customizados (plantas, regiões, propriedades medicinais)
+- **CARE Principles**: Community approval workflows, audit logging, benefit-sharing tracking
+- **Trend Analysis**: Dashboard de análise de gaps e padrões de pesquisa
+- **Publication Monitoring**: APIs de journals (PubMed, CrossRef, arXiv) para ingestão automática
 
 ### Dados Não Retidos
 
@@ -342,12 +387,31 @@ Porém, note que:
 
 ## 🔬 Pesquisa & Inspiração
 
-Este projeto foi inspirado por:
+### Arquitetura de Referência Técnica
 
-1. **Sistemas RAG (Retrieval-Augmented Generation)** - Combina bancos vetoriais com LLMs
-2. **Princípios CARE** - Para dados indígenas (Collective Benefit, Authority, Responsibility, Ethics)
-3. **Etnobotânica Colaborativa** - Envolvimento direto de comunidades
-4. **Open-Science** - Acesso público ao conhecimento
+Este projeto é baseado diretamente na arquitetura do **[docling-rag-agent](https://github.com/coleam00/ottomator-agents/tree/main/docling-rag-agent)**, um sistema RAG comprovado em produção que implementa:
+
+- ✅ **Ingestão multi-formato via Docling** (PDF, DOCX, PPTX, XLSX, HTML, MD, TXT)
+- ✅ **PostgreSQL + pgvector** para armazenamento unificado de metadados e embeddings
+- ✅ **PydanticAI agent framework** com tool-calling architecture
+- ✅ **OpenAI embeddings** (text-embedding-3-small, 1536 dimensões)
+- ✅ **Streaming responses** token-por-token
+- ✅ **Connection pooling** (asyncpg) para performance
+- ✅ **Docker containerization** para deploy reproduzível
+
+**Por que usar docling-rag-agent como base?**
+1. **Arquitetura comprovada em produção** - Não reinventar a roda
+2. **Stack moderno e eficiente** - FastAPI async, PydanticAI, pgvector
+3. **Multi-formato out-of-the-box** - Docling suporta 7+ formatos automaticamente
+4. **Código de referência disponível** - Implementação clara para seguir
+5. **Best practices embutidas** - Chunking, pooling, streaming, error handling
+
+### Inspirações Adicionais
+
+1. **Princípios CARE** - Para dados indígenas (Collective Benefit, Authority, Responsibility, Ethics)
+2. **Etnobotânica Colaborativa** - Envolvimento direto de comunidades tradicionais
+3. **Open-Science** - Acesso público ao conhecimento científico
+4. **RAG Systems** - Combina retrieval de documentos com geração de LLMs
 
 ---
 
@@ -398,16 +462,18 @@ Este projeto foi inspirado por:
 
 ## 🙏 Agradecimentos
 
+- **[docling-rag-agent](https://github.com/coleam00/ottomator-agents/tree/main/docling-rag-agent)**: Arquitetura de referência técnica que serviu de base para este projeto
 - **Comunidades Indígenas**: Pelo conhecimento ancestral sobre plantas
 - **Pesquisadores**: Pelos artigos que tornam este conhecimento visível
-- **Allenai**: Por SPECTER2 (modelo de embedding científico)
-- **PostgreSQL**: Pela confiabilidade e pgvector
-- **LiteLLM**: Pela abstração multi-LLM
+- **[Docling (DS4SD)](https://github.com/DS4SD/docling)**: Biblioteca multi-formato para conversão de documentos
+- **[PydanticAI](https://ai.pydantic.dev/)**: Framework moderno de agentes com tool-calling
+- **PostgreSQL & pgvector**: Pela confiabilidade e busca vetorial eficiente
+- **OpenAI**: Por text-embedding-3-small e APIs de LLM
 
 ---
 
-**Última Atualização**: 1º de Novembro de 2025
-**Versão**: 0.1.0 (Planejamento Detalhado Completo)
+**Última Atualização**: 9 de Novembro de 2025
+**Versão**: 0.2.0 (Arquitetura baseada em docling-rag-agent)
 
 ---
 

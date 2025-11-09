@@ -1,18 +1,27 @@
 # Research Document: Scientific Article Embedding Models
 
 **Research Date**: 2025-11-01
+**Updated**: 2025-11-09 (docling-rag-agent uses OpenAI embeddings)
 **Feature**: 001-ethnobotany-vector-db
-**Purpose**: Evaluate open-source embedding models optimized for scientific articles
+**Purpose**: Evaluate embedding models for scientific articles
+
+**Reference Architecture Update**: [docling-rag-agent](https://github.com/coleam00/ottomator-agents/tree/main/docling-rag-agent) uses **OpenAI text-embedding-3-small** (1536 dimensions) in production with excellent results. Consider this as proven alternative to open-source models.
 
 ---
 
 ## Executive Summary
 
-For ethnobotany scientific article embeddings, **SPECTER2** and **SciBERT** are the top contenders:
+**docling-rag-agent Choice**: **OpenAI text-embedding-3-small** (1536d, ~$0.02/1M tokens)
+- Production-proven in RAG systems
+- High quality, cost-effective
+- Simple API integration
+- **Recommended for MVP**: Start with OpenAI, migrate to open-source if needed
 
-- **SPECTER2** (Recommended): Purpose-built for scientific documents, trained on 6M triplets across 23 fields of study, task-adaptive (different embeddings for different tasks), superior performance
-- **SciBERT**: Solid foundation trained on 1.14M scientific papers, stable and well-documented, smaller model size, good for resource-constrained deployments
-- **Sentence-Transformers**: General-purpose models that can be fine-tuned, good ecosystem, widely used
+**Open-Source Alternatives** (original research):
+
+- **SPECTER2**: Purpose-built for scientific documents, trained on 6M triplets across 23 fields of study, task-adaptive
+- **SciBERT**: Solid foundation trained on 1.14M scientific papers, stable and well-documented
+- **Sentence-Transformers**: General-purpose models, good ecosystem
 
 ---
 

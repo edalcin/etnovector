@@ -1,9 +1,13 @@
 # Implementation Plan: Ethnobotany Vectorized Database
 
 **Created**: 2025-11-01
+**Updated**: 2025-11-09 (Added docling-rag-agent reference architecture)
 **Status**: Ready for Implementation
+**Reference Architecture**: [docling-rag-agent](https://github.com/coleam00/ottomator-agents/tree/main/docling-rag-agent)
+
 **Documentation**:
   - [Feature Specification](./spec.md)
+  - [Updated Specification](./specs/001-docling-rag-update/spec.md) - docling-rag-agent patterns integrated
   - [Data Model](./data-model.md)
   - [API Specification](./api-specification.md)
   - Research: [Embeddings](./research/research-embedding-models.md) • [Databases](./research/research-databases.md) • [LLM APIs](./research/research-llm-apis.md)
@@ -18,9 +22,17 @@ Ethnobotany researchers need a semantic search engine over scientific literature
 
 ### Solution Architecture
 
-A containerized web application that ingests scientific articles via PDF upload or URL, extracts metadata, creates semantic embeddings using AI models, and provides intelligent chat-based search powered by multiple LLM providers.
+**Based on [docling-rag-agent](https://github.com/coleam00/ottomator-agents/tree/main/docling-rag-agent)** - A containerized RAG application that:
+- Ingests documents in multiple formats (PDF, DOCX, PPTX, XLSX, HTML, MD, TXT) via Docling
+- Stores metadata and vector embeddings in PostgreSQL + pgvector
+- Provides chat interface via PydanticAI agent framework with tool-calling
+- Supports multi-provider LLMs (OpenAI, Claude, Gemini) with user-provided API keys
+- Implements streaming responses and async connection pooling
 
-**Key Design Principle**: No full-text PDF retention. Articles are catalogued by metadata + embeddings linked to original sources via DOI/URL.
+**Key Design Principles**:
+1. **Reference Implementation First**: Follow docling-rag-agent patterns before customizing
+2. **No Full-Text Retention**: Metadata + embeddings + source links only
+3. **CARE Principles**: Add ethnobotany-specific governance on top of base RAG
 
 ---
 

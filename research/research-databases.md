@@ -1,18 +1,32 @@
 # Research Document: Vector and SQL Database Selection
 
 **Research Date**: 2025-11-01
+**Updated**: 2025-11-09 (docling-rag-agent uses PostgreSQL + pgvector)
 **Feature**: 001-ethnobotany-vector-db
-**Purpose**: Evaluate vector databases and SQL databases for ethnobotany system
+**Purpose**: Evaluate databases for ethnobotany system
+
+**Reference Architecture Update**: [docling-rag-agent](https://github.com/coleam00/ottomator-agents/tree/main/docling-rag-agent) uses **PostgreSQL 15+ with pgvector extension only** - no separate vector database. Proven to handle production workloads efficiently with:
+- Single database for metadata + vectors (simplified ops)
+- `<=>` cosine distance operator for similarity search
+- Custom `match_chunks()` function with threshold filtering
+- asyncpg connection pooling (2-10 connections)
+- **Recommended for MVP and Production**: Start with pgvector, only add specialized vector DB if performance requires it
 
 ---
 
 ## Executive Summary
 
-**Recommended Architecture**: PostgreSQL with pgvector extension + optional managed vector database
+**docling-rag-agent Choice**: **PostgreSQL + pgvector only**
+- Single database simplicity
+- Production-proven performance
+- ACID guarantees + vector search
+- **Recommended approach**: Follow reference implementation
+
+**Original Research** (still valid for future scaling):
 
 - **For metadata + full-text search**: PostgreSQL 15+ with pgvector (single database, minimal ops)
 - **For semantic search at scale**: Qdrant (cost-effective open-source) OR Weaviate (feature-rich)
-- **Hybrid approach** (recommended): PostgreSQL (primary) + Qdrant (vector search)
+- **Hybrid approach** (if needed later): PostgreSQL (primary) + Qdrant (vector search)
 
 ---
 

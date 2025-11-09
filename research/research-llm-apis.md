@@ -1,20 +1,35 @@
 # Research Document: LLM API Integration for Chat Interface
 
 **Research Date**: 2025-11-01
+**Updated**: 2025-11-09 (docling-rag-agent uses PydanticAI + OpenAI)
 **Feature**: 001-ethnobotany-vector-db
 **Purpose**: Evaluate LLM APIs for the intelligent chat interface
+
+**Reference Architecture Update**: [docling-rag-agent](https://github.com/coleam00/ottomator-agents/tree/main/docling-rag-agent) uses:
+- **Agent Framework**: [PydanticAI](https://ai.pydantic.dev/) for tool-calling architecture
+- **Default LLM**: OpenAI GPT-4o-mini (cost-effective, fast)
+- **Multi-Provider Support**: Claude and Gemini via provider abstraction with user-provided API keys
+- **Streaming**: Token-by-token responses for real-time feedback
+- **Tool-Calling**: `search_knowledge_base` tool for RAG orchestration
 
 ---
 
 ## Executive Summary
 
-**Recommended Approach**: Support all three (Claude, Gemini, ChatGPT) with user-provided API keys
+**docling-rag-agent Choice**: **PydanticAI with OpenAI GPT-4o-mini default**
+- Modern agent framework with type safety
+- Tool-calling for RAG orchestration
+- Multi-provider support (OpenAI/Claude/Gemini)
+- Streaming responses
+- **Recommended for MVP**: Follow PydanticAI pattern with user-provided API keys
 
-- **Primary LLM**: Claude 3.5 Sonnet (best for scientific analysis, highest reliability)
-- **Secondary**: Google Gemini 2.5 (best context window for large queries)
-- **Tertiary**: ChatGPT 4o (popular, good fallback)
+**Recommended Approach** (original research, still valid): Support all three with user-provided API keys
 
-Each user provides their own API key, eliminating API costs to the platform while maintaining user control.
+- **Primary LLM** (docling-rag-agent): OpenAI GPT-4o-mini (default)
+- **Alternative 1**: Claude 3.5 Sonnet (best for scientific analysis)
+- **Alternative 2**: Google Gemini 2.5 (best context window)
+
+Each user provides their own API key, eliminating platform API costs while maintaining user control.
 
 ---
 

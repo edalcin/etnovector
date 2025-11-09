@@ -1,12 +1,18 @@
 # API Specification: Ethnobotany Vectorized Database
 
 **Created**: 2025-11-01
+**Updated**: 2025-11-09 (Added docling-rag-agent reference)
 **Status**: Specification Complete ✅
 **Base URL**: `https://api.ethnobotany.local/v1` (MVP) / Production TBD
+**Reference Architecture**: [docling-rag-agent](https://github.com/coleam00/ottomator-agents/tree/main/docling-rag-agent) - FastAPI async endpoints
+
 **Related**:
   - [Feature Specification](./spec.md)
+  - [Updated Specification](./specs/001-docling-rag-update/spec.md)
   - [Data Model](./data-model.md)
   - [Implementation Plan](./plan.md)
+
+**Implementation Notes**: Follow docling-rag-agent patterns for document upload, embedding generation, and RAG chat endpoints
 
 ---
 

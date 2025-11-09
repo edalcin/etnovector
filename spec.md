@@ -1,12 +1,16 @@
 # Feature Specification: Ethnobotany Scientific Articles Vectorized Database
 
 **Created**: 2025-11-01
+**Updated**: 2025-11-09 (Added docling-rag-agent reference architecture)
 **Status**: Complete ✅
 **Repository**: Main branch (no feature branches)
+**Reference Architecture**: [docling-rag-agent](https://github.com/coleam00/ottomator-agents/tree/main/docling-rag-agent) - Production RAG system with multi-format ingestion
+
 **Related Documents**:
   - [Implementation Plan](./plan.md)
   - [Data Model](./data-model.md)
   - [API Specification](./api-specification.md)
+  - [Updated Specification](./specs/001-docling-rag-update/spec.md) - Architecture-informed spec with docling-rag-agent patterns
   - Research: [Embeddings](./research/research-embedding-models.md) • [Databases](./research/research-databases.md) • [LLM APIs](./research/research-llm-apis.md)
 
 ## User Scenarios & Testing
